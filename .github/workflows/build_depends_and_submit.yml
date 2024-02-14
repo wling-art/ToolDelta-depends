@@ -61,13 +61,16 @@ jobs:
         make all
         rm -rf libs/*.h
     
-    - name: Move Binary Files
-      run: mv neomega_kernel/neomega/c_api/libs/* ToolDelta
+    - name: Move Binary Files and Clean Up
+      run: |
+        mv neomega_kernel/neomega/c_api/libs/* ToolDelta
+        rm -rf neomega_kernel
+        mv ToolDelta/* ./
+        rm -rf ToolDelta
 
     - name: Submit Changes
       uses: EndBug/add-and-commit@v9
       with:
-        add: 'ToolDelta/*'
         default_author: github_actions
         message: '[AUTO] build depends and submit'
         push: '-f' # 要求暴力推送

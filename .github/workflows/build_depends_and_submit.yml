@@ -51,7 +51,7 @@ jobs:
         brew install android-ndk
         brew install make
 
-    - name: Build Depends
+    - name: Build Connect Library
       run: |
         cd neomega_kernel/neomega/c_api
         make all

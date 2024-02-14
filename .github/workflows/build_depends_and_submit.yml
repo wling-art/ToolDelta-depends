@@ -13,12 +13,9 @@ jobs:
   Builder:
     runs-on: macos-latest
     steps:
-    
+
     - name: Checkout Code
       uses: actions/checkout@v4
-      with:
-        ref: 'main'
-        path: 'ToolDelta'
 
     - name: Checkout Code From Local Repository
       uses: actions/checkout@v4
@@ -34,18 +31,17 @@ jobs:
 
     - name: Set Up Go
       uses: actions/setup-go@v2
-    
+
     - name: Configure Raknet
       run: |
+        mkdir configure_raknet_depends
+        cd configure_raknet_depends
         go mod init configure_raknet_depends
         go get github.com/sandertv/go-raknet@v1.12.0
         sudo sed -i "" "s/urrentProtocol byte = 11/urrentProtocol byte = 8/g" /Users/runner/go/pkg/mod/github.com/sandertv/go-raknet@v1.12.0/conn.go
 
     - name: Configure Makefile
       run: mv ci_cd_auto_build_depends/Makefile neomega_kernel/neomega/c_api
-    
-    - name: Clean Up
-      run: rm -rf ci_cd_auto_build_depends
 
     - name: Install Dependencies
       run: |
@@ -60,12 +56,22 @@ jobs:
         cd neomega_kernel/neomega/c_api
         make all
         rm -rf libs/*.h
-    
+
+    - name: Build Access Point
+      run: |
+        cd neomega_kernel/neomega/entries/access_point_entry/cli
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/neomega_linux_access_point_amd64
+        CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o build/neomega_windows_access_point_amd64.exe
+        CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o build/neomega_linux_access_point_arm64
+        CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -o build/neomega_windows_access_point_arm64.exe
+
     - name: Move Binary Files and Clean Up
       run: |
-        mv neomega_kernel/neomega/c_api/libs/* ToolDelta
+        mv neomega_kernel/neomega/c_api/libs/* ./
+        mv neomega_kernel/neomega/entries/access_point_entry/cli/build/* ./
+        rm -rf configure_raknet_depends
+        rm -rf ci_cd_auto_build_depends
         rm -rf neomega_kernel
-        mv ToolDelta/* ./
 
     - name: Submit Changes
       uses: EndBug/add-and-commit@v9

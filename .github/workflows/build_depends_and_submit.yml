@@ -36,6 +36,7 @@ jobs:
         pip install gitpython
         python .github/check_for_new_commits.py
         echo "::set-output name=new_commits::$(cat new_commits.txt)"
+        rm new_commits.txt
 
     - name: Set Up Go
       if: steps.check_commits.outputs.new_commits == 'true'

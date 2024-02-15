@@ -16,12 +16,12 @@ def check_for_new_commits():
         local_commit = ""
     remote_commit = origin.refs.main.commit
 
-    if local_commit != remote_commit:
+    if local_commit != remote_commit.hexsha:
         print("New commits found in the remote repository!")
         print("Local commit:", local_commit)
         print("Remote commit:", remote_commit)
-        with open("commit", "w", encoding="utf-8") as f:
-            f.write(remote_commit)
+        with open("commit.txt", "w", encoding="utf-8") as f:
+            f.write(remote_commit.hexsha)
         with open("new_commits.txt", "w") as f:
             f.write("true")
     else:

@@ -20,7 +20,7 @@ def check_for_new_commits():
         print("New commits found in the remote repository!")
         print("Local commit:", local_commit)
         print("Remote commit:", remote_commit)
-        with open("commit.txt", "w", encoding="utf-8") as f:
+        with open("commit", "w", encoding="utf-8") as f:
             f.write(remote_commit.hexsha)
         with open("new_commits.txt", "w") as f:
             f.write("true")

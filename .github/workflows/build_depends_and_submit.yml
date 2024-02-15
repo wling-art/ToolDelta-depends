@@ -80,7 +80,7 @@ jobs:
         CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o build/neomega_linux_access_point_arm64
         CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -o build/neomega_windows_access_point_arm64.exe
         if [ -z ${ANDROID_ARM64_CC} ]; then echo /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang; else echo ${ANDROID_ARM64_CC}; fi
-        CC=${ANDROID_ARM64_CC} CGO_ENABLED=1 GOOS=android GOARCH=arm64 go build -buildmode=c-shared -trimpath -ldflags "-s -w" -o build/neomega_android_access_point_arm64
+        CGO_CFLAGS="" CC=${ANDROID_ARM64_CC} CGO_ENABLED=1 GOOS=android GOARCH=arm64 go build -buildmode=c-shared -trimpath -ldflags "-s -w" -o build/neomega_android_access_point_arm64
 
     - name: Move Binary Files and Clean Up
       if: ${{ steps.check_commits.outputs.new_commits == 'true' }}

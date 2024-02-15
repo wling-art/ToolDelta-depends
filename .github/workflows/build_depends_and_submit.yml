@@ -79,7 +79,7 @@ jobs:
         CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o build/neomega_windows_access_point_amd64.exe
         CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o build/neomega_linux_access_point_arm64
         CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -o build/neomega_windows_access_point_arm64.exe
-        CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -o build/neomega_android_arm64
+        CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -o build/neomega_android_access_point_arm64
 
     - name: Move Binary Files and Clean Up
       if: ${{ env.GITHUB_STATE == 'true' }}

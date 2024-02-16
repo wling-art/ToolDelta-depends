@@ -64,7 +64,7 @@ jobs:
         path: ~/android-ndk-r20b
 
     - name: Set up NDK
-      if: steps.cache-ndk.outputs.cache-hit != 'true' and ${{ steps.check_commits.outputs.new_commits == 'true' }}
+      if: steps.cache-ndk.outputs.cache-hit != 'true' or ${{ steps.check_commits.outputs.new_commits == 'true' }}
       uses: nttld/setup-ndk@v1
       id: setup-ndk
       with:

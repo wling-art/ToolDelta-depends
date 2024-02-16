@@ -55,13 +55,27 @@ jobs:
       if: ${{ steps.check_commits.outputs.new_commits == 'true' }}
       run: mv ci_cd_auto_build_depends/Makefile neomega_kernel/neomega/c_api
 
+    - name: Cache NDK
+      id: cache-ndk
+      uses: actions/cache@v3
+      with:
+        key: android-ndk-r20b-cache
+        path: ~/android-ndk-r20b
+
+    - name: Set up NDK
+      if: steps.cache-ndk.outputs.cache-hit != 'true'
+      uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r20b
+        add-to-path: false
+
     - name: Install Dependencies
       if: ${{ steps.check_commits.outputs.new_commits == 'true' }}
       run: |
         brew install mingw-w64
         brew install messense/macos-cross-toolchains/x86_64-unknown-linux-gnu
         brew install messense/macos-cross-toolchains/aarch64-unknown-linux-gnu
-        brew install android-ndk
         brew install make
 
     - name: Build Connect Library
@@ -79,7 +93,7 @@ jobs:
         CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o build/neomega_windows_access_point_amd64.exe
         CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o build/neomega_linux_access_point_arm64
         CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -o build/neomega_windows_access_point_arm64.exe
-        CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -o build/neomega_android_access_point_arm64
+        CC=${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang CGO_ENABLE=1 GOOS=android GOARCH=arm64 go build -o build/neomega_android_access_point_arm64
     - name: Move Binary Files and Clean Up
       if: ${{ steps.check_commits.outputs.new_commits == 'true' }}
       run: |

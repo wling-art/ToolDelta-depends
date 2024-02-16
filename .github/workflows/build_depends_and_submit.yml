@@ -99,7 +99,7 @@ jobs:
         CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o build/neomega_windows_access_point_amd64.exe
         CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o build/neomega_linux_access_point_arm64
         CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -o build/neomega_windows_access_point_arm64.exe
-        CGO_CFLAGS= CGO_ENABLED=1 GOOS=android GOARCH=arm64 CC=/Users/runner/android-ndk-r20b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang CXX=Users/runner/android-ndk-r20b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang++ go build -trimpath -ldflags="-s -w" -o build/neomega_android_access_point_arm64
+        CGO_CFLAGS= CGO_ENABLED=1 GOOS=android GOARCH=arm64 CC=${HOME}/android-ndk-r20b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang CXX=${HOME}/android-ndk-r20b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang++ go build -trimpath -ldflags="-s -w" -o build/neomega_android_access_point_arm64
     - name: Move Binary Files and Clean Up
       if: ${{ steps.check_commits.outputs.new_commits == 'true' }}
       run: |

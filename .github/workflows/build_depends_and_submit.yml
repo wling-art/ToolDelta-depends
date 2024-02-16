@@ -99,7 +99,8 @@ jobs:
         CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o build/neomega_windows_access_point_amd64.exe
         CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o build/neomega_linux_access_point_arm64
         CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -o build/neomega_windows_access_point_arm64.exe
-        CGO_LDFLAGS="-Wl,-rpath,/data/data/com.termux/files/usr/lib" CCX=${HOME}/android-ndk-r20b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang++ CC=${HOME}/android-ndk-r20b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang CGO_ENABLE=1 GOMOBILE=$HOME/go/pkg/gomobile GOOS=android GOARCH=arm64 go build -o build/neomega_android_access_point_arm64
+        export GOMOBILE=$HOME/go/pkg/gomobile
+        CGO_LDFLAGS="-Wl,-rpath,/data/data/com.termux/files/usr/lib" CXX=${HOME}/android-ndk-r20b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang++ CC=${HOME}/android-ndk-r20b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang CGO_ENABLE=1 GOARCH=arm64 go build -a -pkgdir="$GOMOBILE/pkg_android_arm64" -ldflags '-extldflags "-pie -fPIE -fPIC"' "$@" -o build/neomega_android_access_point_arm64
     - name: Move Binary Files and Clean Up
       if: ${{ steps.check_commits.outputs.new_commits == 'true' }}
       run: |

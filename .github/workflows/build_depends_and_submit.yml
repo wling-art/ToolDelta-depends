@@ -1,3 +1,7 @@
+name: Build Depends and Submit
+
+
+
 on:
   schedule:
     - cron: '00 00/12 * * *'
@@ -25,25 +29,16 @@ jobs:
         repository: 'bouldev/neo-omega-kernel'
         path: 'neomega_kernel'
 
-    - name: Set Up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-
     - name: Check for new commits
       id: check_commits
-      run: |
-        pip install gitpython
-        python .github/check_for_new_commits.py
-        echo "new_commits=$(cat new_commits.txt)" >> $GITHUB_OUTPUT
-        rm new_commits.txt
+      run: sh ci_cd_auto_build_depends/test_commit_changes.sh
 
     - name: Set Up Go
-      if: ${{ steps.check_commits.outputs.new_commits == 'true' }}
+      if: steps.check_commits.outputs.changed == 'true'
       uses: actions/setup-go@v2
 
     - name: Configure Raknet
-      if: ${{ steps.check_commits.outputs.new_commits == 'true' }}
+      if: steps.check_commits.outputs.changed == 'true'
       run: |
         mkdir configure_raknet_depends
         cd configure_raknet_depends
@@ -52,11 +47,11 @@ jobs:
         sudo sed -i "" "s/urrentProtocol byte = 11/urrentProtocol byte = 8/g" /Users/runner/go/pkg/mod/github.com/sandertv/go-raknet@v1.12.0/conn.go
 
     - name: Configure Makefile
-      if: ${{ steps.check_commits.outputs.new_commits == 'true' }}
+      if: steps.check_commits.outputs.changed == 'true'
       run: mv ci_cd_auto_build_depends/Makefile neomega_kernel/neomega/c_api
 
     - name: Cache NDK
-      if: ${{ steps.check_commits.outputs.new_commits == 'true' }}
+      if: steps.check_commits.outputs.changed == 'true'
       id: cache-ndk
       uses: actions/cache@v3
       with:
@@ -64,7 +59,7 @@ jobs:
         path: ~/android-ndk-r20b
 
     - name: Set up NDK
-      if: ${{ steps.check_commits.outputs.new_commits == 'true' || steps.cache_ndk.outputs.cache-hit != 'true' }}
+      if: ${{ steps.check_commits.outputs.changed == 'true' || steps.cache-ndk.outputs.cache-hit != 'true' }}
       uses: nttld/setup-ndk@v1
       id: setup-ndk
       with:
@@ -76,7 +71,7 @@ jobs:
       run: mv ${{ steps.setup-ndk.outputs.ndk-path }} ${HOME}/android-ndk-r20b
 
     - name: Install Dependencies
-      if: ${{ steps.check_commits.outputs.new_commits == 'true' }}
+      if: steps.check_commits.outputs.changed == 'true'
       run: |
         echo "${{ steps.setup-ndk.outputs.ndk-path }}"
         brew install mingw-w64
@@ -85,14 +80,14 @@ jobs:
         brew install make
 
     - name: Build Connect Library
-      if: ${{ steps.check_commits.outputs.new_commits == 'true' }}
+      if: steps.check_commits.outputs.changed == 'true'
       run: |
         cd neomega_kernel/neomega/c_api
         make all
         rm -rf libs/*.h
 
     - name: Build Access Point
-      if: ${{ steps.check_commits.outputs.new_commits == 'true' }}
+      if: steps.check_commits.outputs.changed == 'true'
       run: |
         cd neomega_kernel/neomega/entries/access_point_entry/cli
         CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/neomega_linux_access_point_amd64
@@ -100,8 +95,9 @@ jobs:
         CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o build/neomega_linux_access_point_arm64
         CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -o build/neomega_windows_access_point_arm64.exe
         CGO_CFLAGS= CGO_ENABLED=1 GOOS=android GOARCH=arm64 CC=${HOME}/android-ndk-r20b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang CXX=${HOME}/android-ndk-r20b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang++ go build -trimpath -ldflags="-s -w" -o build/neomega_android_access_point_arm64
+
     - name: Move Binary Files and Clean Up
-      if: ${{ steps.check_commits.outputs.new_commits == 'true' }}
+      if: steps.check_commits.outputs.changed == 'true'
       run: |
         mv neomega_kernel/neomega/c_api/libs/* ./
         mv neomega_kernel/neomega/entries/access_point_entry/cli/build/* ./
@@ -110,7 +106,7 @@ jobs:
         rm -rf neomega_kernel
 
     - name: Submit Changes
-      if: ${{ steps.check_commits.outputs.new_commits == 'true' }}
+      if: steps.check_commits.outputs.changed == 'true'
       uses: EndBug/add-and-commit@v9
       with:
         default_author: github_actions

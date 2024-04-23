@@ -60,7 +60,7 @@ jobs:
 
     - name: Set up NDK
       if: steps.cache-ndk.outputs.cache-hit != 'true'
-      uses: nttld/setup-ndk@v1
+      uses: nttld/setup-ndk@v1.4.2
       id: setup-ndk
       with:
         ndk-version: r20b

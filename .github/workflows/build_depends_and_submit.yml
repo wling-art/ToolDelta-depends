@@ -51,7 +51,7 @@ jobs:
       run: mv ci_cd_auto_build_depends/Makefile neomega_kernel/neomega/c_api
 
     - name: Cache NDK
-      if: steps.check_commits.outputs.changed == 'true'
+      if: steps.cache-ndk.outputs.cache-hit != 'true'
       id: cache-ndk
       uses: actions/cache@v3
       with:
@@ -59,7 +59,7 @@ jobs:
         path: ~/android-ndk-r20b
 
     - name: Set up NDK
-      if: ${{ steps.check_commits.outputs.changed == 'true' || steps.cache-ndk.outputs.cache-hit != 'true' }}
+      if: steps.cache-ndk.outputs.cache-hit != 'true'
       uses: nttld/setup-ndk@v1
       id: setup-ndk
       with:

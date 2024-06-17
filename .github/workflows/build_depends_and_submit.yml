@@ -78,13 +78,13 @@ jobs:
         brew install messense/macos-cross-toolchains/x86_64-unknown-linux-gnu
         brew install messense/macos-cross-toolchains/aarch64-unknown-linux-gnu
         brew install make
-        go get github.com/golang/snappy
-        go get neo-omega-kernel/neomega/rental_server_impact/info_collect_utils
 
     - name: Build Connect Library
       if: steps.check_commits.outputs.changed == 'true'
       run: |
         cd neomega_kernel/neomega/c_api
+        go get github.com/golang/snappy
+        go get neo-omega-kernel/neomega/rental_server_impact/info_collect_utils
         make all
         rm -rf libs/*.h
 

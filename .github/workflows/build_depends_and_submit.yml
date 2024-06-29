@@ -82,7 +82,9 @@ jobs:
     - name: Build Connect Library
       if: steps.check_commits.outputs.changed == 'true'
       run: |
-        cd neomega_kernel/neomega/c_api
+        cd neomega_kernel
+        go mod tidy
+        cd ./neomega/c_api
         make all
         rm -rf libs/*.h
 

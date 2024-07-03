@@ -26,8 +26,8 @@ jobs:
     - name: Checkout Code From Remote Repository
       uses: actions/checkout@v4
       with:
-        repository: 'bouldev/neo-omega-kernel'
-        path: 'neomega_kernel'
+        repository: 'OmineDev/neomega-core'
+        path: 'neomega_core'
 
     - name: Check for new commits
       id: check_commits
@@ -48,7 +48,7 @@ jobs:
 
     - name: Configure Makefile
       if: steps.check_commits.outputs.changed == 'true'
-      run: mv ci_cd_auto_build_depends/Makefile neomega_kernel/neomega/c_api
+      run: mv ci_cd_auto_build_depends/Makefile neomega_core/neomega/c_api
 
     - name: Cache NDK
       if: steps.cache-ndk.outputs.cache-hit != 'true'
@@ -82,16 +82,14 @@ jobs:
     - name: Build Connect Library
       if: steps.check_commits.outputs.changed == 'true'
       run: |
-        cd neomega_kernel
-        go mod tidy
-        cd ./neomega/c_api
+        cd neomega_core/neomega/c_api
         make all
         rm -rf libs/*.h
 
     - name: Build Access Point
       if: steps.check_commits.outputs.changed == 'true'
       run: |
-        cd neomega_kernel/neomega/entries/access_point_entry/cli
+        cd neomega_core/neomega/entries/access_point_entry/cli
         CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/neomega_linux_access_point_amd64
         CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o build/neomega_windows_access_point_amd64.exe
         CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o build/neomega_linux_access_point_arm64
@@ -101,11 +99,11 @@ jobs:
     - name: Move Binary Files and Clean Up
       if: steps.check_commits.outputs.changed == 'true'
       run: |
-        mv neomega_kernel/neomega/c_api/libs/* ./
-        mv neomega_kernel/neomega/entries/access_point_entry/cli/build/* ./
+        mv neomega_core/neomega/c_api/libs/* ./
+        mv neomega_core/neomega/entries/access_point_entry/cli/build/* ./
         rm -rf configure_raknet_depends
         rm -rf ci_cd_auto_build_depends
-        rm -rf neomega_kernel
+        rm -rf neomega_core
 
     - name: Submit Changes
       if: steps.check_commits.outputs.changed == 'true'

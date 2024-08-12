@@ -17,18 +17,24 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Checkout Code From Local Repository
+    - name: Checkout Build Depends
       uses: actions/checkout@v4
       with:
         ref: 'ci_cd_auto_build_depends'
         path: 'ci_cd_auto_build_depends'
 
-    - name: Checkout Code From Remote Repository
+    - name: Checkout Neo-Omega Core
       uses: actions/checkout@v4
       with:
         repository: 'OmineDev/neomega-core'
         path: 'neomega_core'
-
+      
+    - name: Checkout Raknet
+      uses: actions/checkout@v4
+      with:
+        repository: 'OmineDev/go-raknet'
+        path: 'neomega_core/go-raknet'
+  
     - name: Check for new commits
       id: check_commits
       run: sh ci_cd_auto_build_depends/test_commit_changes.sh
@@ -36,19 +42,14 @@ jobs:
     - name: Set Up Go
       if: steps.check_commits.outputs.changed == 'true'
       uses: actions/setup-go@v2
-
-    - name: Configure Raknet
-      if: steps.check_commits.outputs.changed == 'true'
-      run: |
-        mkdir configure_raknet_depends
-        cd configure_raknet_depends
-        go mod init configure_raknet_depends
-        go get github.com/sandertv/go-raknet@v1.12.0
-        sudo sed -i "" "s/urrentProtocol byte = 11/urrentProtocol byte = 8/g" /Users/runner/go/pkg/mod/github.com/sandertv/go-raknet@v1.12.0/conn.go
-
+  
     - name: Configure Makefile
       if: steps.check_commits.outputs.changed == 'true'
       run: mv ci_cd_auto_build_depends/Makefile neomega_core/neomega/c_api
+
+    - name: Configure Go Mod File
+      if: steps.check_commits.outputs.changed == 'true'
+      run: sed -i "" "s/..\/go-raknet/.\/go-raknet/g" neomega_core/go.mod
 
     - name: Cache NDK
       if: steps.cache-ndk.outputs.cache-hit != 'true'
@@ -101,7 +102,6 @@ jobs:
       run: |
         mv neomega_core/neomega/c_api/libs/* ./
         mv neomega_core/neomega/entries/access_point_entry/cli/build/* ./
-        rm -rf configure_raknet_depends
         rm -rf ci_cd_auto_build_depends
         rm -rf neomega_core
 

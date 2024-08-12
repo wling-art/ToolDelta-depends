@@ -49,7 +49,7 @@ jobs:
 
     - name: Configure Go Mod File
       if: steps.check_commits.outputs.changed == 'true'
-      run: sed -i "" "s/..\/go-raknet/.\/go-raknet/g" neomega_core/go.mod
+      run: sed -i "" "s/\.\.\/go-raknet/\.\/go-raknet/g" neomega_core/go.mod
 
     - name: Cache NDK
       if: steps.cache-ndk.outputs.cache-hit != 'true'
